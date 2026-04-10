@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.o`
@@ -257,7 +257,6 @@ rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added via a link or github org/name. To run setup automatically, use `opts = {}`
   { 'NMAC427/guess-indent.nvim', opts = {} },
-
   -- Alternatively, use `config = function() ... end` for full control over the configuration.
   -- If you prefer to call `setup` explicitly, use:
   --    {
@@ -710,6 +709,8 @@ require('lazy').setup({
     event = 'VimEnter',
     version = '1.*',
     dependencies = {
+      { 'saghen/blink.compat', version = '2.*', lazy = true, opts = {} }, -- add this
+      { 'micangl/cmp-vimtex' }, -- keep the original plugin
       -- Snippet Engine
       {
         'L3MON4D3/LuaSnip',
@@ -779,9 +780,14 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets' },
+        default = { 'lsp', 'path', 'snippets', 'vimtex' },
+        providers = {
+          vimtex = {
+            name = 'vimtex',
+            module = 'blink.compat.source',
+          },
+        },
       },
-
       snippets = { preset = 'luasnip' },
 
       -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
@@ -819,7 +825,6 @@ require('lazy').setup({
       vim.cmd.colorscheme 'tokyonight-night'
     end,
   },
-
   -- Highlight todo, notes, etc in comments
   {
     'folke/todo-comments.nvim',
@@ -919,7 +924,20 @@ require('lazy').setup({
       })
     end,
   },
-
+  {
+    'lervag/vimtex',
+    lazy = false,
+    init = function()
+      vim.g.vimtex_imaps_enabled = 0 --i.e., disable them
+      --vimtex_view_settings
+      vim.g.vimtex_view_method = 'skim' -- change this, depending on what you want to use..sumatraPDF, or skim, or zathura, or...
+      vim.g.vimtex_view_general_options = '-reuse-instance -forward-search @tex @line @pdf'
+      --quickfix settings
+      vim.g.vimtex_quickfix_open_on_warning = 0 --  don't open quickfix if there are only warnings
+      vim.g.vimtex_quickfix_ignore_filters =
+        { 'Underfull', 'Overfull', 'LaTeX Warning: .\\+ float specifier changed to', 'Package hyperref Warning: Token not allowed in a PDF string' }
+    end,
+  },
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
@@ -933,7 +951,7 @@ require('lazy').setup({
   -- require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
   -- require 'kickstart.plugins.autopairs',
-  -- require 'kickstart.plugins.neo-tree',
+  require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommended keymaps
 
   -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
@@ -965,6 +983,9 @@ require('lazy').setup({
       task = '📌',
       lazy = '💤 ',
     },
+  },
+  git = {
+    url_format = 'git@github.com:%s.git', -- use SSH instead of HTTPS
   },
 })
 
