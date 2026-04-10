@@ -110,6 +110,13 @@ vim.o.mouse = 'a'
 -- Don't show the mode, since it's already in the status line
 vim.o.showmode = false
 
+-- auto indent
+vim.o.autoindent = true
+vim.o.smartindent = true
+vim.o.tabstop = 2 -- how wide a tab character looks
+vim.o.shiftwidth = 2 -- how wide >> and auto-indent indents
+vim.o.expandtab = true -- use spaces instead of tab characters
+
 -- Sync clipboard between OS and Neovim.
 --  Schedule the setting after `UiEnter` because it can increase startup-time.
 --  Remove this option if you want your OS clipboard to remain independent.
@@ -761,7 +768,7 @@ require('lazy').setup({
         -- <c-k>: Toggle signature help
         --
         -- See :h blink-cmp-config-keymap for defining your own keymap
-        preset = 'default',
+        preset = 'super-tab',
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
@@ -948,9 +955,9 @@ require('lazy').setup({
   --  Uncomment any of the lines below to enable them (you will need to restart nvim).
   --
   -- require 'kickstart.plugins.debug',
-  -- require 'kickstart.plugins.indent_line',
+  require 'kickstart.plugins.indent_line',
   -- require 'kickstart.plugins.lint',
-  -- require 'kickstart.plugins.autopairs',
+  require 'kickstart.plugins.autopairs',
   require 'kickstart.plugins.neo-tree',
   -- require 'kickstart.plugins.gitsigns', -- adds gitsigns recommended keymaps
 
@@ -988,6 +995,10 @@ require('lazy').setup({
     url_format = 'git@github.com:%s.git', -- use SSH instead of HTTPS
   },
 })
+
+require('luasnip.loaders.from_lua').load {
+  paths = { vim.fn.stdpath 'config' .. '/lua/custom/snippets' },
+}
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
