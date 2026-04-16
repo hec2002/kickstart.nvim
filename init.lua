@@ -308,6 +308,14 @@ require('lazy').setup({
     lazy = false,
     config = function() require('r').setup {} end,
   },
+  {
+    'f-person/auto-dark-mode.nvim',
+    opts = {
+      update_interval = 1000,
+      set_dark_mode = function() vim.o.background = 'dark' end,
+      set_light_mode = function() vim.o.background = 'light' end,
+    },
+  },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
@@ -850,19 +858,28 @@ require('lazy').setup({
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
     'folke/tokyonight.nvim',
-    priority = 1000, -- Make sure to load this before all the other start plugins.
+    priority = 1000,
     config = function()
-      ---@diagnostic disable-next-line: missing-fields
       require('tokyonight').setup {
         styles = {
-          comments = { italic = false }, -- Disable italics in comments
+          comments = { italic = false },
         },
       }
 
-      -- Load the colorscheme here.
-      -- Like many other themes, this one has different styles, and you could load
-      -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      local function set_theme()
+        if vim.o.background == 'light' then
+          vim.cmd.colorscheme 'tokyonight-day'
+        else
+          vim.cmd.colorscheme 'tokyonight-night'
+        end
+      end
+
+      set_theme()
+
+      vim.api.nvim_create_autocmd('OptionSet', {
+        pattern = 'background',
+        callback = set_theme,
+      })
     end,
   },
   -- Highlight todo, notes, etc in comments
