@@ -306,7 +306,14 @@ require('lazy').setup({
   {
     'R-nvim/R.nvim',
     lazy = false,
-    config = function() require('r').setup {} end,
+    config = function()
+      require('r').setup {
+        R_app = 'radian',
+        R_args = { '--no-save', '--quiet' },
+        min_editor_width = 72,
+        rconsole_width = 78,
+      }
+    end,
   },
   {
     'f-person/auto-dark-mode.nvim',
@@ -638,7 +645,7 @@ require('lazy').setup({
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
         ts_ls = {},
-        r_language_server = {},
+        -- r_language_server is managed by R-nvim internally — do not register it here
 
         stylua = {}, -- Used to format Lua code
 
@@ -759,6 +766,7 @@ require('lazy').setup({
     dependencies = {
       { 'saghen/blink.compat', version = '2.*', lazy = true, opts = {} }, -- add this
       { 'micangl/cmp-vimtex' }, -- keep the original plugin
+      { 'R-nvim/cmp-r' },
       -- Snippet Engine
       {
         'L3MON4D3/LuaSnip',
@@ -828,10 +836,14 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets', 'vimtex' },
+        default = { 'lsp', 'path', 'snippets', 'vimtex', 'cmp_r' },
         providers = {
           vimtex = {
             name = 'vimtex',
+            module = 'blink.compat.source',
+          },
+          cmp_r = {
+            name = 'cmp_r',
             module = 'blink.compat.source',
           },
         },
@@ -953,6 +965,7 @@ require('lazy').setup({
         'json',
         'yaml',
         'r',
+        'rnoweb',
         'query',
         'vim',
         'vimdoc',
