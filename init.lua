@@ -312,6 +312,7 @@ require('lazy').setup({
         R_args = { '--no-save', '--quiet' },
         min_editor_width = 72,
         rconsole_width = 78,
+        bracketed_paste = true,
       }
     end,
   },
