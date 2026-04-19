@@ -837,14 +837,10 @@ require('lazy').setup({
       },
 
       sources = {
-        default = { 'lsp', 'path', 'snippets', 'vimtex', 'cmp_r' },
+        default = { 'lsp', 'path', 'snippets', 'vimtex' },
         providers = {
           vimtex = {
             name = 'vimtex',
-            module = 'blink.compat.source',
-          },
-          cmp_r = {
-            name = 'cmp_r',
             module = 'blink.compat.source',
           },
         },
