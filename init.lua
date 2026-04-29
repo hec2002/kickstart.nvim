@@ -243,6 +243,9 @@ vim.api.nvim_create_autocmd('FileType', {
   callback = function()
     vim.opt_local.spell = true
     vim.opt_local.spelllang = 'en_us'
+    vim.opt_local.wrap = true -- wrap long lines at window edge
+    vim.opt_local.colorcolumn = '0' -- no column ruler for prose
+    vim.opt_local.conceallevel = 2 -- hide markdown syntax markers (links, bold asterisks, etc.)
   end,
 })
 
@@ -649,6 +652,23 @@ require('lazy').setup({
         -- r_language_server is managed by R-nvim internally — do not register it here
 
         stylua = {}, -- Used to format Lua code
+        -- Markdown LSP: navigation, link completion, TOC generation, go-to-definition
+        marksman = {},
+
+        -- Grammar/style checker (faster alternative to ltex-ls)
+        -- harper_ls only checks when in markdown/tex buffers by default
+        harper_ls = {
+          filetypes = { 'markdown', 'tex' },
+          settings = {
+            ['harper-ls'] = {
+              linters = {
+                spell_check = true,
+                sentence_capitalization = false, -- disable: too noisy for short notes
+                an_a = true,
+              },
+            },
+          },
+        },
 
         -- Special Lua Config, as recommended by neovim help docs
         lua_ls = {
@@ -693,6 +713,8 @@ require('lazy').setup({
         'stylua',
         'prettierd',
         'ruff',
+        'marksman', -- ADD THIS
+        'harper-ls', -- ADD THIS
       })
 
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
@@ -1023,6 +1045,54 @@ require('lazy').setup({
       vim.g.vimtex_quickfix_ignore_filters =
         { 'Underfull', 'Overfull', 'LaTeX Warning: .\\+ float specifier changed to', 'Package hyperref Warning: Token not allowed in a PDF string' }
     end,
+  },
+  { -- Render markdown inline in the buffer (styled headings, tables, code blocks, etc.)
+    'MeanderingProgrammer/render-markdown.nvim',
+    dependencies = {
+      'nvim-treesitter/nvim-treesitter',
+      'nvim-tree/nvim-web-devicons',
+    },
+    ft = { 'markdown' },
+    ---@module 'render-markdown'
+    ---@type render.md.UserConfig
+    opts = {
+      -- Integrates completions (callouts, checkboxes) with blink.cmp via LSP
+      completions = { lsp = { enabled = true } },
+      -- Render headings with visual padding and icons
+      heading = { enabled = true },
+      -- Render code blocks with a background highlight
+      code = { enabled = true, style = 'full' },
+      -- Render tables with border characters
+      pipe_table = { enabled = true },
+    },
+  },
+  { -- Obsidian-style wiki links, backlinks, note search — without leaving nvim
+    'epwalsh/obsidian.nvim',
+    version = '*',
+    lazy = true,
+    ft = 'markdown',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    ---@module 'obsidian'
+    ---@type obsidian.config.ClientOpts
+    opts = {
+      workspaces = {
+        {
+          name = 'notes',
+          path = '~/notes', -- ← CHANGE THIS to your notes folder
+        },
+      },
+
+      -- Use your existing Telescope for note searching
+      picker = { name = 'telescope' },
+
+      -- Disable obsidian's built-in UI — render-markdown.nvim handles rendering
+      ui = { enable = false },
+
+      -- When following a [[WikiLink]] that doesn't exist, create the note
+      follow_url_func = function(url)
+        vim.fn.jobstart { 'open', url } -- macOS; change to 'xdg-open' on Linux
+      end,
+    },
   },
   -- The following comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
