@@ -1082,6 +1082,9 @@ require('lazy').setup({
         },
       },
 
+      -- disable automatic yaml heading
+      disable_frontmatter = true,
+
       -- Use your existing Telescope for note searching
       picker = { name = 'telescope' },
 
